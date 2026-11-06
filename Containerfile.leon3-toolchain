@@ -1,0 +1,79 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PREFIX=/opt/rtems/6
+ENV TARGET=sparc-rtems6
+ENV PATH=$PREFIX/bin:$PATH
+
+# 1. System prerequisites installation
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libgmp-dev \
+    libmpfr-dev \
+    libmpc-dev \
+    texinfo \
+    bison \
+    flex \
+    zlib1g-dev \
+    libncurses-dev \
+    wget \
+    curl \
+    xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work/manual-src
+
+# 2. Download source packages
+RUN wget https://ftp.gnu.org/gnu/binutils/binutils-2.42.tar.xz && \
+    wget https://ftp.gnu.org/gnu/gcc/gcc-13.2.0/gcc-13.2.0.tar.xz && \
+    wget https://sourceware.org/pub/newlib/newlib-4.3.0.20230120.tar.gz && \
+    wget https://ftp.gnu.org/gnu/gdb/gdb-14.1.tar.xz
+
+# 3. Extract sources and link Newlib into GCC
+RUN tar -xf binutils-2.42.tar.xz && \
+    tar -xf gcc-13.2.0.tar.xz && \
+    tar -xf newlib-4.3.0.20230120.tar.gz && \
+    tar -xf gdb-14.1.tar.xz && \
+    ln -s ../newlib-4.3.0.20230120/newlib gcc-13.2.0/newlib
+
+# 4. Compile and install Binutils
+RUN mkdir build-binutils && cd build-binutils && \
+    ../binutils-2.42/configure --target=$TARGET --prefix=$PREFIX --disable-nls --disable-werror && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && rm -rf build-binutils
+
+# 5. Compile and install unified GCC + Newlib
+RUN mkdir build-gcc && cd build-gcc && \
+    ../gcc-13.2.0/configure \
+        --target=$TARGET \
+        --prefix=$PREFIX \
+        --enable-languages=c,c++ \
+        --with-newlib \
+        --without-headers \
+        --disable-nls \
+        --enable-threads \
+        --disable-shared \
+        --enable-tls && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && rm -rf build-gcc
+
+# 6. Compile and install GDB (without python, with curses, gnu17 standard)
+RUN mkdir build-gdb && cd build-gdb && \
+    ../gdb-14.1/configure \
+        --target=$TARGET \
+        --prefix=$PREFIX \
+        --disable-werror \
+        --with-curses \
+        --without-python \
+        CFLAGS="-g -O2 -std=gnu17" && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && rm -rf build-gdb
+
+# Clean up source files to reduce final image size
+RUN rm -rf /work/manual-src
+
+WORKDIR /workspace
+CMD ["bash"]

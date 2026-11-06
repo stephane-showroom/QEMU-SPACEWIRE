@@ -1,0 +1,16 @@
+diff --git a/target/sparc/translate.c b/target/sparc/translate.c
+index 7e8558d..581ed48 100644
+--- a/target/sparc/translate.c
++++ b/target/sparc/translate.c
+@@ -1589,6 +1589,11 @@ static DisasASI resolve_asi(DisasContext *dc, int asi, MemOp memop)
+             mem_idx = MMU_PHYS_IDX;
+             type = GET_ASI_DIRECT;
+             break;
++        case 1: /* LEON: forced cache miss, QEMU does not model the cache */
++            if (dc->def->features & CPU_FEATURE_CACHE_CTRL) {
++                type = GET_ASI_DIRECT;
++            }
++            break;
+         case ASI_M_BCOPY: /* Block copy, sta access */
+             mem_idx = MMU_KERNEL_IDX;
+             type = GET_ASI_BCOPY;

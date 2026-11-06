@@ -1,0 +1,66 @@
+diff --git a/hw/misc/Kconfig b/hw/misc/Kconfig
+index f4d4924..0f1f8b6 100644
+--- a/hw/misc/Kconfig
++++ b/hw/misc/Kconfig
+@@ -263,3 +263,4 @@ config XLNX_VERSAL_TRNG
+     bool
+ 
+ source macio/Kconfig
++source grspw/Kconfig
+diff --git a/hw/misc/meson.build b/hw/misc/meson.build
+index 092f70b..05c39fe 100644
+--- a/hw/misc/meson.build
++++ b/hw/misc/meson.build
+@@ -166,3 +166,4 @@ system_ss.add(when: 'CONFIG_SBSA_REF', if_true: files('sbsa_ec.c'))
+ 
+ # HPPA devices
+ system_ss.add(when: 'CONFIG_LASI', if_true: files('lasi.c'))
++subdir('grspw')
+diff --git a/hw/sparc/Kconfig b/hw/sparc/Kconfig
+index 3cc165d..b9b860b 100644
+--- a/hw/sparc/Kconfig
++++ b/hw/sparc/Kconfig
+@@ -23,6 +23,7 @@ config LEON3
+     default y
+     depends on SPARC && !SPARC64
+     select GRLIB
++    select GRLIB_GRSPW
+ 
+ config GRLIB
+     bool
+diff --git a/hw/sparc/leon3.c b/hw/sparc/leon3.c
+index 9147d56..be34855 100644
+--- a/hw/sparc/leon3.c
++++ b/hw/sparc/leon3.c
+@@ -66,6 +66,12 @@
+ #define LEON3_TIMER_IRQ    (6)
+ #define LEON3_TIMER_COUNT  (2)
+ 
++#define LEON3_GRSPW_OFFSET (0x80000A00)  /* 4 cores, 0x100 apart */
++#define LEON3_GRSPW_IRQ    (10)          /* IRQ 10..13, one per core */
++#define LEON3_GRSPW_COUNT  (4)
++#define TYPE_GRLIB_APB_GRSPW "grlib-grspw"
++#define GRLIB_GRSPW_DEV    (0x1F)
++
+ #define LEON3_APB_PNP_OFFSET (0x800FF000)
+ #define LEON3_AHB_PNP_OFFSET (0xFFFFF000)
+ 
+@@ -432,6 +438,18 @@ static void leon3_generic_hw_init(MachineState *machine)
+     grlib_apb_pnp_add_entry(apb_pnp, LEON3_UART_OFFSET, 0xFFF,
+                             GRLIB_VENDOR_GAISLER, GRLIB_APBUART_DEV, 1,
+                             LEON3_UART_IRQ, GRLIB_APBIO_AREA);
++
++    /* Allocate SpaceWire (GRSPW) cores */
++    dev = qdev_new(TYPE_GRLIB_APB_GRSPW);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(dev), &error_fatal);
++    sysbus_mmio_map(SYS_BUS_DEVICE(dev), 0, LEON3_GRSPW_OFFSET);
++    for (i = 0; i < LEON3_GRSPW_COUNT; i++) {
++        sysbus_connect_irq(SYS_BUS_DEVICE(dev), i,
++                           qdev_get_gpio_in(irqmpdev, LEON3_GRSPW_IRQ + i));
++        grlib_apb_pnp_add_entry(apb_pnp, LEON3_GRSPW_OFFSET + 0x100 * i,
++                                0xFFF, GRLIB_VENDOR_GAISLER, GRLIB_GRSPW_DEV,
++                                0, LEON3_GRSPW_IRQ + i, GRLIB_APBIO_AREA);
++    }
+ }
+ 
+ static void leon3_generic_machine_init(MachineClass *mc)

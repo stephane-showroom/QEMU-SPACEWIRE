@@ -1,0 +1,36 @@
+FROM rtems6-sparc-build
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install all compilation, QEMU, and development dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    build-essential \
+    libglib2.0-dev \
+    libfdt-dev \
+    libpixman-1-dev \
+    zlib1g-dev \
+    ninja-build \
+    python3 \
+    python3-venv \
+    python3-pip \
+    python3-tomli \
+    pkg-config \
+    flex \
+    bison \
+    cmake \
+    gdb \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone a shallow snapshot of QEMU (stable-11 branch) to save bandwidth and time
+WORKDIR /workspace
+RUN git clone --depth 1 --branch stable-11.0 https://gitlab.com/qemu-project/qemu.git
+WORKDIR /workspace/qemu
+
+# Configuration, compilation, and global installation (to provide qemu-plugin.h headers)
+RUN ./configure --enable-plugins --target-list=x86_64-softmmu,sparc-softmmu
+RUN make -j$(nproc)
+RUN make install
+
+# Create a clean workspace for your external plugins
+WORKDIR /workspace/spacewire

@@ -1,0 +1,34 @@
+# Step 1: Start from your LEON3 toolchain image
+FROM rtems6-sparc-toolchain
+
+ENV PREFIX=/opt/rtems/6
+ENV TARGET=sparc-rtems6
+ENV PATH=$PREFIX/bin:$PATH
+
+# Install required tools to build RTEMS (Waf, git, python, etc.)
+RUN apt-get update && apt-get install -y \
+    git \
+    python3 \
+    python3-pip \
+    bison \
+    flex \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work
+
+# Step 2: Clone RTEMS 6 source code
+RUN git clone https://gitlab.rtems.org/rtems/rtos/rtems.git --branch 6 rtems-6 && \
+    cd rtems-6 && \
+    git checkout 6.2
+
+# Step 3: Configure and compile the LEON3 BSP
+WORKDIR /work/rtems-6
+RUN printf "[sparc/leon3]\n" > config.ini && \
+    ./waf configure --prefix=$PREFIX && \
+    sed -i '/#include <sys\/resource.h>/a #ifndef RUSAGE_THREAD\n#define RUSAGE_THREAD 1\n#endif' cpukit/libcsupport/src/getrusage.c && \
+    ./waf -j$(nproc) && \
+    ./waf install
+
+WORKDIR /workspace
+CMD ["bash"]
