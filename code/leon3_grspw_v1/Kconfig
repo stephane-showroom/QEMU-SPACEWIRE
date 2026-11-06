@@ -1,0 +1,16 @@
+#################################################################################
+#                                                                               #
+#     ▀▄   ▄▀                                                                   #
+#    ▄█▀███▀█▄    Created on: Nov 6, 2026                                       #
+#   █▀███████▀█   Author: Stephane                                              #
+#   █ █▀▀▀▀▀█ █                                                                 #
+#      ▀▀ ▀▀                                                                    #
+#                                                                               #
+#  Copyright 2015 Kconfig                                                       #
+#  Released under the "CeCILL-C" license                                        #
+#  http://www.cecill.info                                                       #
+#################################################################################
+
+config GRLIB_GRSPW
+    bool
+    depends on GRLIB

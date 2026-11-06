@@ -1,0 +1,16 @@
+{
+  "name": "QEMU SpaceWire Plugin Dev",
+  "image": "localhost/qemu-dev-plugin:latest",
+  "dockerSocket": "/run/user/1000/podman/podman.sock",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/spacewire,type=bind",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools"
+      ]
+    }
+  },
+  "workspaceFolder": "/workspace/spacewire",
+  "postCreateCommand": "code/integrate_qemu.sh"
+}
