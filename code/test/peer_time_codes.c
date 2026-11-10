@@ -1,14 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /********************************************************************************
  *                                                                              *
  *    ▀▄   ▄▀                                                                   *
  *   ▄█▀███▀█▄    Created on: Nov 6, 2026                                       *
- *  █▀███████▀█   Author: Stephane                                              *
+ *  █▀███████▀█   Author: Stephane GONZALEZ                                     *
  *  █ █▀▀▀▀▀█ █                                                                 *
  *     ▀▀ ▀▀                                                                    *
  *                                                                              *
- * Copyright 2015 peer_time_codes.c                                             *
- * Released under the "CeCILL-C" license                                        *
- * http://www.cecill.info                                                       *
+ * Copyright (C) 2015-2026 Stephane GONZALEZ                                    *
+ * Released under the GNU GPL v2 or later, see LICENSE                          *
  ********************************************************************************/
 
 /*

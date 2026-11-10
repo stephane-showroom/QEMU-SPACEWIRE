@@ -1,14 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /********************************************************************************
  *                                                                              *
  *    ▀▄   ▄▀                                                                   *
  *   ▄█▀███▀█▄    Created on: Jul 5, 2015                                       *
- *  █▀███████▀█   Author: Stephane                                              *
+ *  █▀███████▀█   Author: Stephane GONZALEZ                                     *
  *  █ █▀▀▀▀▀█ █                                                                 *
  *     ▀▀ ▀▀                                                                    *
  *                                                                              *
- * Copyright 2015 grlib_apbgrspw.h                                              *
- * Released under the "CeCILL-C" license                                        *
- * http://www.cecill.info                                                       *
+ * Copyright (C) 2015-2026 Stephane GONZALEZ                                    *
+ * Released under the GNU GPL v2 or later, see LICENSE                          *
  ********************************************************************************/
 
 #ifndef GRLIB_APBGRSPW_H_

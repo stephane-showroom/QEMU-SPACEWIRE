@@ -248,3 +248,8 @@ ECSS-E-ST-50-52C, which the DMA channel can also append and check.
   CCSDS CRC-16.
 - Up to 64 received packets per core can wait for a descriptor in no spill mode. Later
   ones are discarded.
+
+## License
+
+This project is released under the GNU General Public License, version 2 or
+(at your option) any later version (`GPL-2.0-or-later`). See [LICENSE](LICENSE) for the full text.
